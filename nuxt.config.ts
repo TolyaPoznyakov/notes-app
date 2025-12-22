@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
+  ssr: false,
   devtools: { enabled: true },
   css: ['~/assets/css/tailwind.css'],
   vite: {
@@ -11,7 +12,11 @@ export default defineNuxtConfig({
       tailwindcss()
     ]
   },
-
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.API_URL
+    }
+  },
 
   modules: [
     '@nuxt/content',
