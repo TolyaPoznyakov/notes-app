@@ -52,6 +52,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
 import routes from '~/const/routes'
 import { X } from 'lucide-vue-next'
+import { useApiRequest } from '~/composables/apiRequest.js'
 
 defineProps({
   notes: {
