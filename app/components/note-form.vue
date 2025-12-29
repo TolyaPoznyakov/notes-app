@@ -1,12 +1,13 @@
 <template>
-  <Card class="m-5 w-md h-64 p-4">
-    <Input v-model="localTitle" placeholder="Title" />
-    <Textarea v-model="localText" placeholder="Text" />
+  <Card class="m-5 w-md p-4">
+    <Input v-model="form.title" placeholder="Title" />
+    <Textarea v-model="form.text" placeholder="Text" />
+    <CategoryAutocomplete v-model="form.categoryId" :categories="categories" />
     <Button
-        class="w-30 cursor-pointer hover:scale-103"
-        variant="outline"
-        :disabled="loading"
-        @click="submit"
+      class="w-30 cursor-pointer hover:scale-103"
+      variant="outline"
+      :disabled="loading"
+      @click="createNote"
     >
       Add note
     </Button>
@@ -14,29 +15,74 @@
 </template>
 
 <script setup>
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
-import { Textarea } from "~/components/ui/textarea"
-import { Card } from "~/components/ui/card"
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/textarea'
+import { Card } from '~/components/ui/card'
+import { toast } from 'vue-sonner'
+import routes from '~/const/routes'
 
-const emit = defineEmits(['submit'])
-
-defineProps({
-  loading: Boolean
+const props = defineProps({
+  selectedCategoryId: {
+    type: String,
+    default: 'all'
+  },
+  categories: {
+    type: Array,
+    default: () => []
+  }
 })
 
-const localTitle = ref('')
-const localText = ref('')
+const emit = defineEmits(['update:notes'])
 
-const submit = () => {
-  if (!localTitle.value || !localText.value) return
+const loading = ref(false)
+const form = reactive({
+  title: '',
+  text: '',
+  categoryId: ''
+})
 
-  emit('submit', {
-    title: localTitle.value,
-    text: localText.value
+// todo: reuse
+const fetchNotes = async () => {
+  const res = await useApiRequest(routes.notes.list(), {
+    key: 'notes' + new Date().getMilliseconds(), // обхід useFetch кешування
+    query: {
+      categoryId: props.selectedCategoryId
+    }
   })
+  emit('update:notes', res.data.value)
+}
 
-  localTitle.value = ''
-  localText.value = ''
+const createNote = async () => {
+  // TODO: Validate form
+  loading.value = true
+
+  try {
+    const payload = {
+      title: form.title,
+      text: form.text,
+      categoryId: form.categoryId
+    }
+    await useApiRequest(routes.notes.list(), {
+      method: 'POST',
+      body: payload
+    })
+    if (props.selectedCategoryId === form.categoryId) {
+      await fetchNotes()
+    }
+    toast.success('Note has been created')
+    resetForm()
+  } catch (error) {
+    toast.error('Failed to create note')
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const resetForm = () => {
+  form.title = ''
+  form.text = ''
+  form.categoryId = ''
 }
 </script>
