@@ -1,53 +1,50 @@
 <template>
   <div>
-    <div class="grid place-items-center mt-[10px] ">
+    <div class="grid place-items-center mt-[10px]">
       <note-form
-          :loading="loading"
-          @submit="createNote"
+        :categories="categories"
+        :selected-category-id="selectedCategoryId"
+        @update:notes="updateNotes"
       />
     </div>
-    <div class="grid grid-cols-4">
-      <note-card
-          v-for="note in notes"
-          :key="note._id"
-          :note="note"
+    <div class="grid place-items-center mt-[10px] w-full">
+      <categories-tabs
+        :categories="categories"
+        :notes="notes"
+        @update:category-id="updateCategoryId"
+        @update:notes="updateNotes"
+        @update:categories="fetchCategories"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { useApiRequest } from "~/composables/apiRequest.js"
-import routes from "~/const/routes.js"
+import { useApiRequest } from '~/composables/apiRequest.js'
+import routes from '~/const/routes'
 
-
+const categories = ref([])
+const selectedCategoryId = ref('all')
 const notes = ref([])
-const loading = ref(false)
 
-const fetchNotes = async () => {
-  const res = await useApiRequest(routes.notes.list)
-  notes.value = res.data.value
+const updateNotes = (val) => {
+  notes.value = val
 }
 
-const createNote = async (payload) => {
-  loading.value = true
-
-  const res = await useApiRequest(routes.notes.list, {
-    method: 'POST',
-    body: payload
+const fetchCategories = async () => {
+  const res = await useApiRequest(routes.categories.list(), {
+    key: 'categories' + new Date().getMilliseconds() // обхід useFetch кешування
   })
-
-  notes.value.push(res.data.value)
-  loading.value = false
+  categories.value = res.data.value
 }
 
+const updateCategoryId = (val) => {
+  selectedCategoryId.value = val
+}
 
 onMounted(async () => {
-  await fetchNotes()
+  await fetchCategories()
 })
 </script>
 
-
-<style scoped>
-
-</style>
+<style scoped></style>
