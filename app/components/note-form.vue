@@ -21,6 +21,7 @@ import { Textarea } from '~/components/ui/textarea'
 import { Card } from '~/components/ui/card'
 import { toast } from 'vue-sonner'
 import routes from '~/const/routes'
+import { useApiRequest } from '~/composables/apiRequest.js'
 
 const props = defineProps({
   selectedCategoryId: {
@@ -39,7 +40,7 @@ const loading = ref(false)
 const form = reactive({
   title: '',
   text: '',
-  categoryId: ''
+  categoryId: props.selectedCategoryId !== 'all' ? props.selectedCategoryId : null
 })
 
 // todo: reuse
@@ -54,6 +55,18 @@ const fetchNotes = async () => {
 }
 
 const createNote = async () => {
+  if (!form.title.trim() && !form.text.trim()) {
+    toast.error('Please enter a title, text and select categories.')
+    return
+  }
+  if (!form.title.trim()) {
+    toast.error('Please enter a title.')
+    return
+  }
+  if (!form.categoryId) {
+    toast.error('Please enter a category.')
+    return
+  }
   // TODO: Validate form
   loading.value = true
 
@@ -61,9 +74,10 @@ const createNote = async () => {
     const payload = {
       title: form.title,
       text: form.text,
-      categoryId: form.categoryId
+      categoryId: form.categoryId || null
     }
     await useApiRequest(routes.notes.list(), {
+      key: 'notes' + new Date().getMilliseconds(),
       method: 'POST',
       body: payload
     })

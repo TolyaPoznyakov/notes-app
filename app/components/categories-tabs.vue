@@ -9,13 +9,18 @@
         class="group"
       >
         {{ category.name }}
-        <Button
-          variant="ghost"
-          class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-          @click="deleteCategory(category._id)"
+        <confirm-delete-dialog
+          entity="category"
+          class="flex items-center"
+          @confirm="deleteCategory(category._id)"
         >
-          <X />
-        </Button>
+          <Button
+            variant="ghost"
+            class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          >
+            <X />
+          </Button>
+        </confirm-delete-dialog>
       </TabsTrigger>
     </TabsList>
     <TabsContent value="all">
@@ -24,6 +29,7 @@
           v-for="note in notes"
           :key="note._id"
           :note="note"
+          @edit="editNote"
           @delete="deleteNote(note._id)"
         />
       </div>
@@ -40,6 +46,7 @@
             v-for="note in notes"
             :key="note._id"
             :note="note"
+            @edit="editNote"
             @delete="deleteNote(note._id)"
           />
         </div>
@@ -49,9 +56,11 @@
 </template>
 
 <script setup>
+import { useApiRequest } from '~/composables/apiRequest.js'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
 import routes from '~/const/routes'
 import { X } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 defineProps({
   notes: {
@@ -93,6 +102,27 @@ watch(activeCategoryId, async (val) => {
 onMounted(async () => {
   await fetchNotes(null)
 })
+
+const editNote = async (updateNote) => {
+  await useApiRequest(routes.notes.concrete(updateNote._id), {
+    method: 'PATCH',
+    body: updateNote
+  })
+
+  await fetchNotes(activeCategoryId.value === 'all' ? null : activeCategoryId.value)
+
+  toast.success('Note updated')
+}
+
+const deleteNote = async (noteId) => {
+  await useApiRequest(routes.notes.concrete(noteId), {
+    method: 'DELETE'
+  })
+
+  await fetchNotes(activeCategoryId.value === 'all' ? null : activeCategoryId.value)
+
+  toast.success('Note has been deleted')
+}
 
 const deleteCategory = async (categoryId) => {
   await useApiRequest(routes.categories.concrete(categoryId), {
