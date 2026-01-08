@@ -63,10 +63,10 @@ const createNote = async () => {
     toast.error('Please enter a title.')
     return
   }
-  if (!form.categoryId) {
-    toast.error('Please enter a category.')
-    return
-  }
+  // if (!form.categoryId) {
+  //   toast.error('Please enter a category.')
+  //   return
+  // }
   // TODO: Validate form
   loading.value = true
 
