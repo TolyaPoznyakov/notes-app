@@ -23,6 +23,10 @@
 import { useApiRequest } from '~/composables/apiRequest.js'
 import routes from '~/const/routes'
 
+definePageMeta({
+  middleware: ['auth']
+})
+
 const categories = ref([])
 const selectedCategoryId = ref('all')
 const notes = ref([])
