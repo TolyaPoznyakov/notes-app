@@ -10,32 +10,36 @@
           <Field>
             <FieldLabel>Email</FieldLabel>
             <FieldGroup>
-              <Input v-model="form.email" type="email" placeholder="Enter your email"/>
+              <Input v-model="form.email" type="email" placeholder="Enter your email" />
               <!-- <FieldError v-if="!form.email">Email is required</FieldError> -->
             </FieldGroup>
           </Field>
           <Field>
-            <FieldLabel>Username</FieldLabel>
+            <FieldLabel class="mt-3">Username</FieldLabel>
             <FieldGroup>
-              <Input v-model="form.username" type="text" placeholder="Enter your username"/>
+              <Input v-model="form.username" type="text" placeholder="Enter your username" />
               <!-- <FieldError>Username is required</FieldError> -->
             </FieldGroup>
           </Field>
           <Field>
-            <FieldLabel>Password</FieldLabel>
+            <FieldLabel class="mt-3">Password</FieldLabel>
             <FieldGroup>
-              <Input v-model="form.password" type="password" placeholder="Enter your password"/>
+              <Input v-model="form.password" type="password" placeholder="Enter your password" />
               <!-- <FieldError>Password is required</FieldError> -->
             </FieldGroup>
           </Field>
           <Field>
-            <FieldLabel>Confirm Password</FieldLabel>
+            <FieldLabel class="mt-3">Confirm Password</FieldLabel>
             <FieldGroup>
-              <Input v-model="form.confirmPassword" type="password" placeholder="Confirm your password" />
+              <Input
+                v-model="form.confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+              />
               <!-- <FieldError>Confirm password is required</FieldError> -->
             </FieldGroup>
           </Field>
-          <Button type="submit">Sign Up</Button>
+          <Button class="mt-5 cursor-pointer" type="submit">Sign Up</Button>
         </form>
       </CardContent>
     </Card>
@@ -43,11 +47,7 @@
 </template>
 
 <script setup>
-import {
-  Field,
-  FieldGroup,
-  FieldLabel
-} from '@/components/ui/field'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -56,6 +56,7 @@ import routes from '~/const/routes'
 import { useApiRequest } from '~/composables/apiRequest'
 
 definePageMeta({
+  layout: 'auth',
   middleware: ['guest']
 })
 
@@ -67,17 +68,52 @@ const form = reactive({
 })
 
 const signUp = async () => {
-  // TODO: Validate form
-  if (form.password !== form.confirmPassword) {
-    toast.error('Passwords do not match')
+  if (
+    !form.email.trim() &&
+    !form.username.trim() &&
+    !form.password.trim() &&
+    !form.confirmPassword.trim()
+  ) {
+    toast.error('Please fill in all fields')
     return
   }
-  await useApiRequest(routes.auth.register(), {
-    method: 'POST',
-    body: form
-  })
-  toast.success('User registered successfully')
-  navigateTo('/auth/sign-in')
-}
 
+  if (!form.email.trim()) {
+    toast.error('Please enter email.')
+    return
+  }
+
+  if (!form.username.trim()) {
+    toast.error('Please enter username.')
+    return
+  }
+
+  if (!form.password || !form.password.trim()) {
+    toast.error('Please enter password.')
+    return
+  }
+
+  if (!form.confirmPassword || !form.confirmPassword.trim()) {
+    toast.error('Please confirm your password.')
+    return
+  }
+
+  if (form.password !== form.confirmPassword) {
+    // TODO: Validate form
+    toast.error('Passwords do not match.')
+    return
+  }
+
+  try {
+    await useApiRequest(routes.auth.register(), {
+      method: 'POST',
+      body: form
+    })
+    toast.success('User registered successfully!')
+    navigateTo('/auth/sign-in')
+  } catch (e) {
+    toast.error('Registration failed.')
+    console.error(e)
+  }
+}
 </script>
