@@ -1,8 +1,8 @@
 export default {
   auth: {
-    register: () => '/auth/register'
-    // login: () => '/auth/login' роут для входу в систему
-    // profile: () => '/auth/profile' роут для отримання профілю користувача
+    register: () => '/auth/register',
+    login: () => '/auth/login',
+    profile: () => '/auth/profile'
   },
   notes: {
     list: () => '/notes',
