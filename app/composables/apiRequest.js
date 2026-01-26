@@ -4,7 +4,7 @@ export const useApiRequest = async (url, options = {}, config = {}) => {
   const method = options.method || 'GET'
   const headers = {
     accept: 'application/json',
-    // Authorization: 'Bearer ' + localStorage.getItem('token'),
+    Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
     ...config.headers
   }
   const response = await useFetch(apiUrl + url, {
