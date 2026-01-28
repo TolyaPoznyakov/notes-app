@@ -2,7 +2,8 @@ export default {
   auth: {
     register: () => '/auth/register',
     login: () => '/auth/login',
-    profile: () => '/auth/profile'
+    profile: () => '/auth/profile',
+    refresh: () => '/auth/refresh'
   },
   notes: {
     list: () => '/notes',
