@@ -10,9 +10,7 @@
     <div class="grid place-items-center mt-[10px] w-full">
       <categories-tabs
         :categories="categories"
-        :notes="notes"
         @update:category-id="updateCategoryId"
-        @update:notes="updateNotes"
         @update:categories="fetchCategories"
       />
     </div>
@@ -29,11 +27,6 @@ definePageMeta({
 
 const categories = ref([])
 const selectedCategoryId = ref('all')
-const notes = ref([])
-
-const updateNotes = (val) => {
-  notes.value = val
-}
 
 const fetchCategories = async () => {
   const res = await useApiRequest(routes.categories.list(), {

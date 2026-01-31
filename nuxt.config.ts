@@ -19,14 +19,13 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/hints',
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/test-utils',
-    '@nuxt/ui',
-    'shadcn-nuxt'
+    'shadcn-nuxt',
+    '@pinia/nuxt'
   ],
 
   shadcn: {

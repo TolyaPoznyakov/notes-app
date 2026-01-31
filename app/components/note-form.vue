@@ -2,7 +2,10 @@
   <Card class="mb-5 w-md p-4">
     <Input v-model="form.title" placeholder="Title" />
     <Textarea v-model="form.text" placeholder="Text" />
-    <CategoryAutocomplete v-model="form.categoryId" :categories="categories" />
+    <CategoryAutocomplete
+      v-model="form.categoryId"
+      :categories="categories"
+    />
     <Button
       class="w-30 cursor-pointer hover:scale-103"
       variant="outline"
@@ -20,8 +23,9 @@ import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/textarea'
 import { Card } from '~/components/ui/card'
 import { toast } from 'vue-sonner'
-import routes from '~/const/routes'
-import { useApiRequest } from '~/composables/apiRequest.js'
+import { useNotesStore } from '~/store/notes'
+
+const notesStore = useNotesStore()
 
 const props = defineProps({
   selectedCategoryId: {
@@ -34,25 +38,13 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:notes'])
-
 const loading = ref(false)
+// local state
 const form = reactive({
   title: '',
   text: '',
   categoryId: props.selectedCategoryId !== 'all' ? props.selectedCategoryId : null
 })
-
-// todo: reuse
-const fetchNotes = async () => {
-  const res = await useApiRequest(routes.notes.list(), {
-    key: 'notes' + new Date().getMilliseconds(), // обхід useFetch кешування
-    query: {
-      categoryId: props.selectedCategoryId
-    }
-  })
-  emit('update:notes', res.data.value)
-}
 
 const createNote = async () => {
   if (!form.title.trim() && !form.text.trim()) {
@@ -63,11 +55,6 @@ const createNote = async () => {
     toast.error('Please enter a title.')
     return
   }
-  // if (!form.categoryId) {
-  //   toast.error('Please enter a category.')
-  //   return
-  // }
-  // TODO: Validate form
   loading.value = true
 
   try {
@@ -76,14 +63,7 @@ const createNote = async () => {
       text: form.text,
       categoryId: form.categoryId || null
     }
-    await useApiRequest(routes.notes.list(), {
-      key: 'notes' + new Date().getMilliseconds(),
-      method: 'POST',
-      body: payload
-    })
-    if (props.selectedCategoryId === form.categoryId) {
-      await fetchNotes()
-    }
+    await notesStore.create(payload)
     toast.success('Note has been created')
     resetForm()
   } catch (error) {
