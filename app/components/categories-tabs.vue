@@ -61,34 +61,23 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
 import routes from '~/const/routes'
 import { X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import { useNotesStore } from '~/store/notes'
+
+const notesStore = useNotesStore()
 
 defineProps({
-  notes: {
-    type: Array,
-    default: () => []
-  },
   categories: {
     type: Array,
     default: () => []
   }
 })
 
-const emit = defineEmits(['update:categoryId', 'update:notes', 'update:categories'])
+const emit = defineEmits(['update:categoryId', 'update:categories'])
 
 const activeCategoryId = ref('all')
 const loading = ref(false)
 
-const fetchNotes = async (categoryId) => {
-  loading.value = true
-  const res = await useApiRequest(routes.notes.list(), {
-    key: 'notes' + new Date().getMilliseconds(), // обхід useFetch кешування
-    query: {
-      categoryId
-    }
-  })
-  emit('update:notes', res.data.value)
-  loading.value = false
-}
+const notes = computed(() => notesStore.notes)
 
 watch(activeCategoryId, async (val) => {
   emit('update:categoryId', val)
@@ -103,24 +92,19 @@ onMounted(async () => {
   await fetchNotes(null)
 })
 
+const fetchNotes = async (categoryId) => {
+  loading.value = true
+  await notesStore.getAll(categoryId)
+  loading.value = false
+}
+
 const editNote = async (updateNote) => {
-  await useApiRequest(routes.notes.concrete(updateNote._id), {
-    method: 'PATCH',
-    body: updateNote
-  })
-
-  await fetchNotes(activeCategoryId.value === 'all' ? null : activeCategoryId.value)
-
+  await notesStore.update(updateNote._id, updateNote)
   toast.success('Note updated')
 }
 
 const deleteNote = async (noteId) => {
-  await useApiRequest(routes.notes.concrete(noteId), {
-    method: 'DELETE'
-  })
-
-  await fetchNotes(activeCategoryId.value === 'all' ? null : activeCategoryId.value)
-
+  await notesStore.delete(noteId)
   toast.success('Note has been deleted')
 }
 

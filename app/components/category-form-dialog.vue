@@ -49,7 +49,12 @@ const createCategory = async () => {
   try {
     await useApiRequest(routes.categories.list(), {
       method: 'POST',
-      body: form
+      body: form,
+      key: 'createCategory' + new Date().getMilliseconds()
+    })
+
+    await useApiRequest(routes.categories.list(), {
+      key: 'categories' + new Date().getMilliseconds() // обхід useFetch кешування
     })
 
     toast.success('Category has been created')
