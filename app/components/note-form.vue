@@ -61,7 +61,7 @@ const createNote = async () => {
     const payload = {
       title: form.title,
       text: form.text,
-      categoryId: form.categoryId || null
+      category: form.categoryId || null
     }
     await notesStore.create(payload)
     toast.success('Note has been created')
