@@ -1,8 +1,20 @@
 <template>
   <Card class="mb-5 w-md p-4">
-    <Input v-model="form.title" placeholder="Title" />
-    <Textarea v-model="form.text" placeholder="Text" />
-    <CategoryAutocomplete v-model="form.categoryId" :categories="categories" />
+    <VeeField v-slot="{ field, errors }" name="title">
+      <Field :data-invalid="!!errors.length">
+        <Input v-bind="field" placeholder="Title" :aria-invalid="!!errors.length" />
+        <FieldError v-if="errors.length" :errors="errors" />
+      </Field>
+    </VeeField>
+    <VeeField v-slot="{ field, errors }" name="text">
+      <Field :data-invalid="!!errors.length">
+        <Textarea v-bind="field" placeholder="Text" :aria-invalid="!!errors.length" />
+        <FieldError v-if="errors.length" :errors="errors" />
+      </Field>
+    </VeeField>
+
+    <CategoryAutocomplete v-model="categoryId" :categories="categories" />
+
     <Button
       class="w-30 cursor-pointer hover:scale-103"
       variant="outline"
@@ -22,6 +34,10 @@ import { Card } from '~/components/ui/card'
 import { toast } from 'vue-sonner'
 import routes from '~/const/routes'
 import { useApiRequest } from '~/composables/apiRequest.js'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useForm, Field as VeeField } from 'vee-validate'
+import { z } from 'zod'
+import { FieldError } from '~/components/ui/field/index.js'
 
 const props = defineProps({
   selectedCategoryId: {
@@ -34,14 +50,26 @@ const props = defineProps({
   }
 })
 
+const formSchema = toTypedSchema(
+  z.object({
+    title: z.string().min(1, 'Title is required'),
+    text: z.string().min(1, 'Text is required')
+  })
+)
+
+const { handleSubmit, resetForm } = useForm({
+  validationSchema: formSchema,
+  initialValues: {
+    title: '',
+    text: ''
+  }
+})
+
+const categoryId = ref(props.selectedCategoryId !== 'all' ? props.selectedCategoryId : null)
+
 const emit = defineEmits(['update:notes'])
 
 const loading = ref(false)
-const form = reactive({
-  title: '',
-  text: '',
-  categoryId: props.selectedCategoryId !== 'all' ? props.selectedCategoryId : null
-})
 
 // todo: reuse
 const fetchNotes = async () => {
@@ -54,49 +82,31 @@ const fetchNotes = async () => {
   emit('update:notes', res.data.value)
 }
 
-const createNote = async () => {
-  if (!form.title.trim() && !form.text.trim()) {
-    toast.error('Please enter a title, text and select categories.')
-    return
-  }
-  if (!form.title.trim()) {
-    toast.error('Please enter a title.')
-    return
-  }
-  // if (!form.categoryId) {
-  //   toast.error('Please enter a category.')
-  //   return
-  // }
-  // TODO: Validate form
+const createNote = handleSubmit(async (values) => {
   loading.value = true
 
   try {
     const payload = {
-      title: form.title,
-      text: form.text,
-      categoryId: form.categoryId || null
+      title: values.title,
+      text: values.text,
+      categoryId: categoryId.value || null
     }
     await useApiRequest(routes.notes.list(), {
       key: 'notes' + new Date().getMilliseconds(),
       method: 'POST',
       body: payload
     })
-    if (props.selectedCategoryId === form.categoryId) {
+    if (props.selectedCategoryId === categoryId.value) {
       await fetchNotes()
     }
     toast.success('Note has been created')
     resetForm()
+    categoryId.value = null
   } catch (error) {
     toast.error('Failed to create note')
     console.error(error)
   } finally {
     loading.value = false
   }
-}
-
-const resetForm = () => {
-  form.title = ''
-  form.text = ''
-  form.categoryId = ''
-}
+})
 </script>
