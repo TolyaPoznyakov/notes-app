@@ -2,10 +2,7 @@
   <Card class="mb-5 w-md p-4">
     <Input v-model="form.title" placeholder="Title" />
     <Textarea v-model="form.text" placeholder="Text" />
-    <CategoryAutocomplete
-      v-model="form.categoryId"
-      :categories="categories"
-    />
+    <CategoryAutocomplete v-model="form.categoryId" :categories="categories" />
     <Button
       class="w-30 cursor-pointer hover:scale-103"
       variant="outline"
@@ -77,6 +74,6 @@ const createNote = async () => {
 const resetForm = () => {
   form.title = ''
   form.text = ''
-  form.categoryId = ''
+  form.categoryId = null
 }
 </script>

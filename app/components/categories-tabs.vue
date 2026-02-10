@@ -56,14 +56,14 @@
 </template>
 
 <script setup>
-import { useApiRequest } from '~/composables/apiRequest.js'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
-import routes from '~/const/routes'
 import { X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useNotesStore } from '~/store/notes'
+import { useCategoriesStore } from '~/store/categories.js'
 
 const notesStore = useNotesStore()
+const categoriesStore = useCategoriesStore()
 
 defineProps({
   categories: {
@@ -109,10 +109,7 @@ const deleteNote = async (noteId) => {
 }
 
 const deleteCategory = async (categoryId) => {
-  await useApiRequest(routes.categories.concrete(categoryId), {
-    method: 'DELETE'
-  })
-  emit('update:categories')
+  await categoriesStore.delete(categoryId)
   toast.success('Category has been deleted with its notes')
 }
 </script>

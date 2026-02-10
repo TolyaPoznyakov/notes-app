@@ -33,9 +33,10 @@
 </template>
 
 <script setup>
-import { useApiRequest } from '~/composables/apiRequest.js'
-import routes from '~/const/routes.js'
 import { toast } from 'vue-sonner'
+import { useCategoriesStore } from '~/store/categories.js'
+
+const categoriesStore = useCategoriesStore()
 
 const open = ref(false)
 
@@ -47,25 +48,25 @@ const form = reactive({
 
 const createCategory = async () => {
   try {
-    await useApiRequest(routes.categories.list(), {
-      method: 'POST',
-      body: form,
-      key: 'createCategory' + new Date().getMilliseconds()
-    })
-
-    await useApiRequest(routes.categories.list(), {
-      key: 'categories' + new Date().getMilliseconds() // обхід useFetch кешування
-    })
+    const payload = {
+      name: form.name,
+      description: form.description,
+      color: form.color || null
+    }
+    await categoriesStore.create(payload)
 
     toast.success('Category has been created')
     open.value = false
-
-    form.name = ''
-    form.description = ''
-    form.color = ''
+    resetForm()
   } catch (error) {
     toast.error('Failed to create category')
     console.error(error)
   }
+}
+
+const resetForm = () => {
+  form.name = ''
+  form.description = ''
+  form.color = ''
 }
 </script>
