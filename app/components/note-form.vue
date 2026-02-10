@@ -37,7 +37,6 @@ import { useApiRequest } from '~/composables/apiRequest.js'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm, Field as VeeField } from 'vee-validate'
 import { z } from 'zod'
-import { FieldError } from '~/components/ui/field/index.js'
 
 const props = defineProps({
   selectedCategoryId: {
