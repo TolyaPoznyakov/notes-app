@@ -57,7 +57,6 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm, Field as VeeField } from 'vee-validate'
 import { z } from 'zod'
 import { Field, FieldLabel } from '~/components/ui/field/index.js'
-// import { Textarea } from '~/components/ui/textarea/index.js'
 
 const open = ref(false)
 
