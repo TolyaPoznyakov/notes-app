@@ -2,10 +2,7 @@
   <Card class="mb-5 w-md p-4">
     <Input v-model="form.title" placeholder="Title" />
     <Textarea v-model="form.text" placeholder="Text" />
-    <CategoryAutocomplete
-      v-model="form.categoryId"
-      :categories="categories"
-    />
+    <CategoryAutocomplete v-model="form.categoryId" :categories="categories" />
     <Button
       class="w-30 cursor-pointer hover:scale-103"
       variant="outline"
@@ -24,26 +21,19 @@ import { Textarea } from '~/components/ui/textarea'
 import { Card } from '~/components/ui/card'
 import { toast } from 'vue-sonner'
 import { useNotesStore } from '~/store/notes'
+import { useCategoriesStore } from '~/store/categories.js'
+import { storeToRefs } from 'pinia'
 
 const notesStore = useNotesStore()
-
-const props = defineProps({
-  selectedCategoryId: {
-    type: String,
-    default: 'all'
-  },
-  categories: {
-    type: Array,
-    default: () => []
-  }
-})
+const categoriesStore = useCategoriesStore()
+const { categories, selectedCategoryId } = storeToRefs(categoriesStore)
 
 const loading = ref(false)
 // local state
 const form = reactive({
   title: '',
   text: '',
-  categoryId: props.selectedCategoryId !== 'all' ? props.selectedCategoryId : null
+  categoryId: selectedCategoryId.value !== 'all' ? selectedCategoryId.value : null
 })
 
 const createNote = async () => {
@@ -77,6 +67,6 @@ const createNote = async () => {
 const resetForm = () => {
   form.title = ''
   form.text = ''
-  form.categoryId = ''
+  form.categoryId = null
 }
 </script>
