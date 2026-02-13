@@ -31,6 +31,7 @@ export const useNotesStore = defineStore('notes', {
       })
       const updatedNote = res.data.value
       this.notes = this.notes.map((note) => (note._id === id ? updatedNote : note))
+      return res
     },
     async delete(id) {
       await useApiRequest(routes.notes.concrete(id), {
