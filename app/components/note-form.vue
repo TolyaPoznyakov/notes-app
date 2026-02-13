@@ -32,22 +32,16 @@ import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/textarea'
 import { Card } from '~/components/ui/card'
 import { toast } from 'vue-sonner'
-import routes from '~/const/routes'
-import { useApiRequest } from '~/composables/apiRequest.js'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm, Field as VeeField } from 'vee-validate'
 import { z } from 'zod'
+import { useNotesStore } from '~/store/notes'
+import { useCategoriesStore } from '~/store/categories.js'
+import { storeToRefs } from 'pinia'
 
-const props = defineProps({
-  selectedCategoryId: {
-    type: String,
-    default: 'all'
-  },
-  categories: {
-    type: Array,
-    default: () => []
-  }
-})
+const notesStore = useNotesStore()
+const categoriesStore = useCategoriesStore()
+const { categories, selectedCategoryId } = storeToRefs(categoriesStore)
 
 const formSchema = toTypedSchema(
   z.object({
@@ -66,20 +60,14 @@ const { handleSubmit, resetForm } = useForm({
 
 const categoryId = ref(props.selectedCategoryId !== 'all' ? props.selectedCategoryId : null)
 
-const emit = defineEmits(['update:notes'])
 
 const loading = ref(false)
-
-// todo: reuse
-const fetchNotes = async () => {
-  const res = await useApiRequest(routes.notes.list(), {
-    key: 'notes' + new Date().getMilliseconds(), // обхід useFetch кешування
-    query: {
-      categoryId: props.selectedCategoryId
-    }
-  })
-  emit('update:notes', res.data.value)
-}
+// local state
+const form = reactive({
+  title: '',
+  text: '',
+  categoryId: selectedCategoryId.value !== 'all' ? selectedCategoryId.value : null
+})
 
 const createNote = handleSubmit(async (values) => {
   loading.value = true
@@ -88,16 +76,9 @@ const createNote = handleSubmit(async (values) => {
     const payload = {
       title: values.title,
       text: values.text,
-      categoryId: categoryId.value || null
+      category: categoryId.value || null
     }
-    await useApiRequest(routes.notes.list(), {
-      key: 'notes' + new Date().getMilliseconds(),
-      method: 'POST',
-      body: payload
-    })
-    if (props.selectedCategoryId === categoryId.value) {
-      await fetchNotes()
-    }
+    await notesStore.create(payload)
     toast.success('Note has been created')
     resetForm()
     categoryId.value = null

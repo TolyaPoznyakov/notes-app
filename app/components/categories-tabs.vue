@@ -1,5 +1,5 @@
 <template>
-  <Tabs v-model="activeCategoryId" default-value="all" class="grid place-items-center w-full">
+  <Tabs v-model="selectedCategoryId" default-value="all" class="grid place-items-center w-full">
     <TabsList>
       <TabsTrigger value="all">All</TabsTrigger>
       <TabsTrigger
@@ -56,79 +56,52 @@
 </template>
 
 <script setup>
-import { useApiRequest } from '~/composables/apiRequest.js'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
-import routes from '~/const/routes'
 import { X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import { useNotesStore } from '~/store/notes'
+import { useCategoriesStore } from '~/store/categories.js'
+import { storeToRefs } from 'pinia'
 
-defineProps({
-  notes: {
-    type: Array,
-    default: () => []
-  },
-  categories: {
-    type: Array,
-    default: () => []
-  }
-})
+const notesStore = useNotesStore()
+const categoriesStore = useCategoriesStore()
 
-const emit = defineEmits(['update:categoryId', 'update:notes', 'update:categories'])
+const { categories, selectedCategoryId } = storeToRefs(categoriesStore)
 
-const activeCategoryId = ref('all')
 const loading = ref(false)
 
-const fetchNotes = async (categoryId) => {
-  loading.value = true
-  const res = await useApiRequest(routes.notes.list(), {
-    key: 'notes' + new Date().getMilliseconds(), // обхід useFetch кешування
-    query: {
-      categoryId
-    }
-  })
-  emit('update:notes', res.data.value)
-  loading.value = false
-}
+const notes = computed(() => notesStore.notes)
 
-watch(activeCategoryId, async (val) => {
-  emit('update:categoryId', val)
+watch(selectedCategoryId, async (val) => {
   if (val === 'all') {
     await fetchNotes(null)
     return
   }
-  await fetchNotes(activeCategoryId.value)
+  await fetchNotes(val)
 })
 
 onMounted(async () => {
   await fetchNotes(null)
 })
 
+const fetchNotes = async (categoryId) => {
+  loading.value = true
+  await notesStore.getAll(categoryId)
+  loading.value = false
+}
+
 const editNote = async (updateNote) => {
-  await useApiRequest(routes.notes.concrete(updateNote._id), {
-    method: 'PATCH',
-    body: updateNote
-  })
-
-  await fetchNotes(activeCategoryId.value === 'all' ? null : activeCategoryId.value)
-
+  await notesStore.update(updateNote._id, updateNote)
   toast.success('Note updated')
 }
 
 const deleteNote = async (noteId) => {
-  await useApiRequest(routes.notes.concrete(noteId), {
-    method: 'DELETE'
-  })
-
-  await fetchNotes(activeCategoryId.value === 'all' ? null : activeCategoryId.value)
-
+  await notesStore.delete(noteId)
   toast.success('Note has been deleted')
 }
 
 const deleteCategory = async (categoryId) => {
-  await useApiRequest(routes.categories.concrete(categoryId), {
-    method: 'DELETE'
-  })
-  emit('update:categories')
+  await categoriesStore.delete(categoryId)
   toast.success('Category has been deleted with its notes')
 }
 </script>

@@ -1,9 +1,7 @@
 <template>
   <DialogForm v-model="open">
     <template #trigger>
-      <Button variant="secondary" class="w-full rounded-none cursor-pointer" @click="openDialog">
-        Add category
-      </Button>
+      <Button variant="secondary" class="w-full rounded-none cursor-pointer"> Add category </Button>
     </template>
 
     <template #title> Create category </template>
@@ -50,20 +48,17 @@
 </template>
 
 <script setup>
-import { useApiRequest } from '~/composables/apiRequest.js'
-import routes from '~/const/routes.js'
 import { toast } from 'vue-sonner'
+import { useCategoriesStore } from '~/store/categories.js'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm, Field as VeeField } from 'vee-validate'
 import { z } from 'zod'
 import { Field, FieldLabel } from '~/components/ui/field/index.js'
 
+const categoriesStore = useCategoriesStore()
+
 const open = ref(false)
 
-const openDialog = () => {
-  resetForm() // скидаємо всі поля і помилки
-  open.value = true
-}
 
 const formSchema = toTypedSchema(
   z.object({
@@ -82,12 +77,14 @@ const { handleSubmit, resetForm } = useForm({
   }
 })
 
-const createCategory = handleSubmit(async (values) => {
+const createCategory = handleSubmit(async () => {
   try {
-    await useApiRequest(routes.categories.list(), {
-      method: 'POST',
-      body: values
-    })
+    const payload = {
+      name: form.name,
+      description: form.description,
+      color: form.color || null
+    }
+    await categoriesStore.create(payload)
 
     toast.success('Category has been created')
     open.value = false
