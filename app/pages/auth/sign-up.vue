@@ -57,7 +57,15 @@
               </Field>
             </VeeField>
           </FieldGroup>
-          <Button type="submit" class="mt-5 cursor-pointer">Sign Up</Button>
+          <div class="mt-5 flex justify-between">
+            <Button type="submit" class="cursor-pointer">Sign Up</Button>
+            <CardDescription class="text-center mt-2">
+              Already have an account?
+              <NuxtLink to="/auth/sign-in" class="font-medium text-primary hover:underline"
+                >Sign in</NuxtLink
+              >
+            </CardDescription>
+          </div>
         </form>
       </CardContent>
     </Card>

@@ -1,46 +1,25 @@
 <template>
   <div>
     <div class="grid place-items-center mt-[10px]">
-      <note-form
-        :categories="categories"
-        :selected-category-id="selectedCategoryId"
-        @update:notes="updateNotes"
-      />
+      <note-form />
     </div>
     <div class="grid place-items-center mt-[10px] w-full">
-      <categories-tabs
-        :categories="categories"
-        @update:category-id="updateCategoryId"
-        @update:categories="fetchCategories"
-      />
+      <categories-tabs />
     </div>
   </div>
 </template>
 
 <script setup>
-import { useApiRequest } from '~/composables/apiRequest.js'
-import routes from '~/const/routes'
+import { useCategoriesStore } from '~/store/categories.js'
 
 definePageMeta({
   middleware: ['auth']
 })
 
-const categories = ref([])
-const selectedCategoryId = ref('all')
-
-const fetchCategories = async () => {
-  const res = await useApiRequest(routes.categories.list(), {
-    key: 'categories' + new Date().getMilliseconds() // обхід useFetch кешування
-  })
-  categories.value = res.data.value
-}
-
-const updateCategoryId = (val) => {
-  selectedCategoryId.value = val
-}
+const categoriesStore = useCategoriesStore()
 
 onMounted(async () => {
-  await fetchCategories()
+  await categoriesStore.getAll()
 })
 </script>
 
