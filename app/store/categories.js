@@ -4,7 +4,8 @@ import { useApiRequest } from '~/composables/apiRequest.js'
 
 export const useCategoriesStore = defineStore('categories', {
   state: () => ({
-    categories: []
+    categories: [],
+    selectedCategoryId: 'all'
   }),
   getters: {},
   actions: {
@@ -27,6 +28,9 @@ export const useCategoriesStore = defineStore('categories', {
         method: 'DELETE'
       })
       this.categories = this.categories.filter((category) => category.id !== id)
+    },
+    setSelectedCategoryId(id) {
+      this.selectedCategoryId = id
     }
   }
 })
