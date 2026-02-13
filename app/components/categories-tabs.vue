@@ -29,8 +29,6 @@
           v-for="note in notes"
           :key="note._id"
           :note="note"
-          @edit="editNote"
-          @delete="deleteNote(note._id)"
         />
       </div>
     </TabsContent>
@@ -46,8 +44,6 @@
             v-for="note in notes"
             :key="note._id"
             :note="note"
-            @edit="editNote"
-            @delete="deleteNote(note._id)"
           />
         </div>
       </template>
@@ -88,16 +84,6 @@ const fetchNotes = async (categoryId) => {
   loading.value = true
   await notesStore.getAll(categoryId)
   loading.value = false
-}
-
-const editNote = async (updateNote) => {
-  await notesStore.update(updateNote._id, updateNote)
-  toast.success('Note updated')
-}
-
-const deleteNote = async (noteId) => {
-  await notesStore.delete(noteId)
-  toast.success('Note has been deleted')
 }
 
 const deleteCategory = async (categoryId) => {
