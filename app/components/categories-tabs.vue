@@ -1,5 +1,5 @@
 <template>
-  <Tabs v-model="activeCategoryId" default-value="all" class="grid place-items-center w-full">
+  <Tabs v-model="selectedCategoryId" default-value="all" class="grid place-items-center w-full">
     <TabsList>
       <TabsTrigger value="all">All</TabsTrigger>
       <TabsTrigger
@@ -61,31 +61,23 @@ import { X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useNotesStore } from '~/store/notes'
 import { useCategoriesStore } from '~/store/categories.js'
+import { storeToRefs } from 'pinia'
 
 const notesStore = useNotesStore()
 const categoriesStore = useCategoriesStore()
 
-defineProps({
-  categories: {
-    type: Array,
-    default: () => []
-  }
-})
+const { categories, selectedCategoryId } = storeToRefs(categoriesStore)
 
-const emit = defineEmits(['update:categoryId', 'update:categories'])
-
-const activeCategoryId = ref('all')
 const loading = ref(false)
 
 const notes = computed(() => notesStore.notes)
 
-watch(activeCategoryId, async (val) => {
-  emit('update:categoryId', val)
+watch(selectedCategoryId, async (val) => {
   if (val === 'all') {
     await fetchNotes(null)
     return
   }
-  await fetchNotes(activeCategoryId.value)
+  await fetchNotes(val)
 })
 
 onMounted(async () => {
