@@ -1,14 +1,14 @@
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="submit">
-    <VeeField v-slot="{ field, errors }" name="title">
+    <VeeField v-slot="{ errors }" name="title">
       <Field :data-invalid="!!errors.length">
-        <Input v-bind="field" placeholder="Title" :aria-invalid="!!errors.length" />
+        <Input v-model="title" v-bind="titleAttrs" placeholder="Title" :aria-invalid="!!errors.length" />
         <FieldError v-if="errors.length" :errors="errors" />
       </Field>
     </VeeField>
-    <VeeField v-slot="{ field, errors }" name="text">
+    <VeeField v-slot="{ errors }" name="text">
       <Field :data-invalid="!!errors.length">
-        <Textarea v-bind="field" placeholder="Text" :aria-invalid="!!errors.length" />
+        <Textarea v-model="text" v-bind="textAttrs" placeholder="Text" :aria-invalid="!!errors.length" />
         <FieldError v-if="errors.length" :errors="errors" />
       </Field>
     </VeeField>
@@ -19,7 +19,7 @@
       variant="outline"
       :disabled="loading"
     >
-      {{ note ? 'Save' : 'Add note' }}
+      {{ isEdit ? 'Edit note' : 'Add note' }}
     </Button>
   </form>
 </template>
@@ -40,6 +40,19 @@ const notesStore = useNotesStore()
 const categoriesStore = useCategoriesStore()
 const { categories, selectedCategoryId } = storeToRefs(categoriesStore)
 
+const props = defineProps({
+  note: {
+    type: Object,
+    default: null
+  },
+  closeModal: {
+    type: Function,
+    default: null
+  }
+})
+
+const isEdit = computed(() => props.note !== null)
+
 const formSchema = toTypedSchema(
   z.object({
     title: z.string().min(1, 'Title is required'),
@@ -47,16 +60,14 @@ const formSchema = toTypedSchema(
   })
 )
 
-const { handleSubmit, resetForm } = useForm({
-  validationSchema: formSchema,
-  initialValues: {
-    title: '',
-    text: ''
-  }
+const { handleSubmit, resetForm, defineField, setValues } = useForm({
+  validationSchema: formSchema
 })
 
-const categoryId = ref(selectedCategoryId.value !== 'all' ? selectedCategoryId.value : null)
+const [title, titleAttrs] = defineField('title')
+const [text, textAttrs] = defineField('text')
 
+const categoryId = ref(selectedCategoryId.value !== 'all' ? selectedCategoryId.value : null)
 
 const loading = ref(false)
 
@@ -69,12 +80,12 @@ const submit = handleSubmit(async (values) => {
       text: values.text,
       category: categoryId.value || null
     }
-    if (props.note) {
+    if (isEdit.value) {
       await notesStore.update(props.note._id, payload)
     } else {
       await notesStore.create(payload)
     }
-    toast.success(props.note ? 'Note has been updated' : 'Note has been created')
+    toast.success(isEdit.value ? 'Note has been updated' : 'Note has been created')
     resetForm()
     if (props.closeModal) {
       props.closeModal()
@@ -85,6 +96,15 @@ const submit = handleSubmit(async (values) => {
     console.error(error)
   } finally {
     loading.value = false
+  }
+})
+
+onMounted(() => {
+  if (isEdit.value) {
+    setValues({
+      title: props.note.title,
+      text: props.note.text
+    })
   }
 })
 </script>

@@ -23,10 +23,11 @@ import { Card } from '~/components/ui/card'
 import { Trash2, PencilLine } from 'lucide-vue-next'
 import { useDialogsStore } from '~/store/dialogs'
 import NoteForm from '~/components/note-form.vue'
+import { useNotesStore } from '~/store/notes'
+import { toast } from 'vue-sonner'
 
 const dialogsStore = useDialogsStore()
-
-// const emit = defineEmits(['delete', 'edit'])
+const notesStore = useNotesStore()
 
 const props = defineProps({
   note: {
@@ -47,6 +48,13 @@ const editNote = () => {
 }
 
 const deleteNote = () => {
-  console.log('deleteNote')
+  dialogsStore.open('confirm', {
+    title: 'Are you sure you want to delete this note?',
+    description: 'This action is irreversible, be careful.',
+    onSubmit: async () => {
+      await notesStore.delete(props.note._id)
+      toast.success('Note has been deleted')
+    }
+  })
 }
 </script>
