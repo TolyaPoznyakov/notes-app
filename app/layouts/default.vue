@@ -7,6 +7,7 @@
       <slot />
     </main>
     <Toaster />
+    <dialogs />
   </div>
 </template>
 
@@ -14,4 +15,5 @@
 import 'vue-sonner/style.css'
 import { Toaster } from '~/components/ui/sonner'
 import UserProfilePopover from '~/components/user-profile-popover.vue'
+import dialogs from '~/components/dialogs/dialogs.vue'
 </script>

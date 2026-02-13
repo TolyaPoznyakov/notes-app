@@ -1,11 +1,17 @@
 <template>
   <div>
     <div class="grid place-items-center mt-[10px]">
-      <note-form
-        :categories="categories"
-        :selected-category-id="selectedCategoryId"
-        @update:notes="updateNotes"
-      />
+      <Card class="mb-5 w-md p-4">
+        <CardHeader class="p-0">
+          <CardTitle class="text-2xl font-bold">Add note</CardTitle>
+        </CardHeader>
+        <CardContent class="p-0">
+          <note-form
+            :categories="categories"
+            :selected-category-id="selectedCategoryId"
+          />
+        </CardContent>
+      </Card>
     </div>
     <div class="grid place-items-center mt-[10px] w-full">
       <categories-tabs

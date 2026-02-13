@@ -1,27 +1,23 @@
 <template>
-  <Card class="mb-5 w-md p-4">
+  <form class="flex flex-col gap-4" @submit.prevent="submit">
     <Input v-model="form.title" placeholder="Title" />
     <Textarea v-model="form.text" placeholder="Text" />
-    <CategoryAutocomplete
-      v-model="form.categoryId"
-      :categories="categories"
-    />
+    <CategoryAutocomplete v-model="form.categoryId" :categories="categories" />
     <Button
+      type="submit"
       class="w-30 cursor-pointer hover:scale-103"
       variant="outline"
       :disabled="loading"
-      @click="createNote"
     >
-      Add note
+      {{ note ? 'Save' : 'Add note' }}
     </Button>
-  </Card>
+  </form>
 </template>
 
 <script setup>
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/textarea'
-import { Card } from '~/components/ui/card'
 import { toast } from 'vue-sonner'
 import { useNotesStore } from '~/store/notes'
 
@@ -35,6 +31,14 @@ const props = defineProps({
   categories: {
     type: Array,
     default: () => []
+  },
+  note: {
+    type: Object,
+    default: null
+  },
+  closeModal: {
+    type: Function,
+    default: null
   }
 })
 
@@ -46,7 +50,7 @@ const form = reactive({
   categoryId: props.selectedCategoryId !== 'all' ? props.selectedCategoryId : null
 })
 
-const createNote = async () => {
+const submit = async () => {
   if (!form.title.trim() && !form.text.trim()) {
     toast.error('Please enter a title, text and select categories.')
     return
@@ -63,9 +67,16 @@ const createNote = async () => {
       text: form.text,
       category: form.categoryId || null
     }
-    await notesStore.create(payload)
-    toast.success('Note has been created')
+    if (props.note) {
+      await notesStore.update(props.note._id, payload)
+    } else {
+      await notesStore.create(payload)
+    }
+    toast.success(props.note ? 'Note has been updated' : 'Note has been created')
     resetForm()
+    if (props.closeModal) {
+      props.closeModal()
+    }
   } catch (error) {
     toast.error('Failed to create note')
     console.error(error)
@@ -79,4 +90,11 @@ const resetForm = () => {
   form.text = ''
   form.categoryId = ''
 }
+
+onMounted(() => {
+  if (props.note) {
+    form.title = props.note.title
+    form.text = props.note.text
+  }
+})
 </script>

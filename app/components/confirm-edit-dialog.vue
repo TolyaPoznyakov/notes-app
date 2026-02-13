@@ -33,6 +33,10 @@
 
 <script setup>
 import { PencilLine } from 'lucide-vue-next'
+import { useNotesStore } from '~/store/notes'
+import { toast } from 'vue-sonner'
+
+const notesStore = useNotesStore()
 
 const open = ref(false)
 
@@ -49,8 +53,10 @@ const hasChanges = computed(
   () => localNote.title !== originalNote.title || localNote.text !== originalNote.text
 )
 
-const saveChanges = () => {
-  emit('confirm', { ...localNote })
+const saveChanges = async () => {
+  const res = await notesStore.update(props.note._id, localNote)
+  emit('confirm', res.data.value)
+  toast.success('Note updated')
   open.value = false
 }
 </script>

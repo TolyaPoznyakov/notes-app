@@ -8,7 +8,7 @@
     </PopoverTrigger>
     <PopoverContent
       side="left"
-      side-offset="1"
+      :side-offset="1"
       class="mim-w-50 p-0 mt-1.5 border rounded-md shadow-md"
     >
       <div class="p-3">

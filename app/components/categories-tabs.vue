@@ -97,7 +97,7 @@ const fetchNotes = async (categoryId) => {
   await notesStore.getAll(categoryId)
   loading.value = false
 }
-
+// todo
 const editNote = async (updateNote) => {
   await notesStore.update(updateNote._id, updateNote)
   toast.success('Note updated')
