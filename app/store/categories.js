@@ -18,8 +18,7 @@ export const useCategoriesStore = defineStore('categories', {
     async create(payload) {
       const res = await useApiRequest(routes.categories.list(), {
         method: 'POST',
-        body: payload,
-        key: 'createCategory' + new Date().getMilliseconds()
+        body: payload
       })
       this.categories.push(res.data.value)
     },
