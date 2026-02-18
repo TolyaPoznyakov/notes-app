@@ -26,7 +26,7 @@ export const useCategoriesStore = defineStore('categories', {
       await useApiRequest(routes.categories.concrete(id), {
         method: 'DELETE'
       })
-      this.categories = this.categories.filter((category) => category.id !== id)
+      this.categories = this.categories.filter((category) => category._id !== id)
     },
     setSelectedCategoryId(id) {
       this.selectedCategoryId = id
