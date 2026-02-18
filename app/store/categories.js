@@ -18,8 +18,7 @@ export const useCategoriesStore = defineStore('categories', {
     async create(payload) {
       const res = await useApiRequest(routes.categories.list(), {
         method: 'POST',
-        body: payload,
-        key: 'createCategory' + new Date().getMilliseconds()
+        body: payload
       })
       this.categories.push(res.data.value)
     },
@@ -27,7 +26,7 @@ export const useCategoriesStore = defineStore('categories', {
       await useApiRequest(routes.categories.concrete(id), {
         method: 'DELETE'
       })
-      this.categories = this.categories.filter((category) => category.id !== id)
+      this.categories = this.categories.filter((category) => category._id !== id)
     },
     setSelectedCategoryId(id) {
       this.selectedCategoryId = id
