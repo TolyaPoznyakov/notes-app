@@ -9,14 +9,6 @@
         :placeholder="placeholder"
         :aria-invalid="!!errors.length"
       />
-      <!--      <Input-->
-      <!--        v-if="as === 'input'"-->
-      <!--        v-bind="field"-->
-      <!--        :type="type"-->
-      <!--        :placeholder="placeholder"-->
-      <!--        :aria-invalid="!!errors.length"-->
-      <!--      />-->
-      <!--      <Textarea v-else v-bind="field" :placeholder="placeholder" :aria-invalid="!!errors.length" />-->
       <FieldError v-if="!!errors.length" :errors="errors" />
     </Field>
   </VeeField>
