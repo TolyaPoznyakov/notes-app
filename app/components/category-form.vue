@@ -1,26 +1,8 @@
 <template>
   <form class="grid gap-4" @submit.prevent="submit">
-    <VeeField v-slot="{ field, errors }" name="name">
-      <Field :data-invalid="!!errors.length">
-        <FieldLabel>Name *</FieldLabel>
-        <Input v-bind="field" :aria-invalid="!!errors.length" />
-        <FieldError v-if="errors.length" :errors="errors" />
-      </Field>
-    </VeeField>
-    <VeeField v-slot="{ field, errors }" name="description">
-      <Field :data-invalid="!!errors.length">
-        <FieldLabel>Description</FieldLabel>
-        <Input v-bind="field" :aria-invalid="!!errors.length" />
-        <FieldError v-if="errors.length" :errors="errors" />
-      </Field>
-    </VeeField>
-    <VeeField v-slot="{ field, errors }" name="color">
-      <Field :data-invalid="!!errors.length">
-        <FieldLabel>Color</FieldLabel>
-        <Input v-bind="field" :aria-invalid="!!errors.length" />
-        <FieldError v-if="errors.length" :errors="errors" />
-      </Field>
-    </VeeField>
+    <base-form-field name="name" label="Name *" />
+    <base-form-field name="description" label="Description" />
+    <base-form-field name="color" label="Color" />
     <Button type="submit" class="w-30 cursor-pointer hover:scale-103" variant="outline"
       >Save</Button
     >
@@ -31,10 +13,10 @@
 import { toast } from 'vue-sonner'
 import { useCategoriesStore } from '~/store/categories.js'
 import { toTypedSchema } from '@vee-validate/zod'
-import { useForm, Field as VeeField } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { z } from 'zod'
-import { Field, FieldLabel } from '~/components/ui/field/index.js'
 import { Button } from '~/components/ui/button/index.js'
+import BaseFormField from '~/components/base-form-field.vue'
 
 const categoriesStore = useCategoriesStore()
 
