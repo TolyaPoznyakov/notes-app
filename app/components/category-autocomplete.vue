@@ -34,7 +34,13 @@
               />
             </CommandItem>
           </CommandGroup>
-          <CategoryFormDialog />
+          <Button
+            variant="secondary"
+            class="w-full rounded-none cursor-pointer"
+            @click="createCategory"
+          >
+            Add category
+          </Button>
         </CommandList>
       </Command>
     </PopoverContent>
@@ -54,6 +60,10 @@ import {
   CommandList
 } from '~/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+import CategoryForm from '~/components/category-form.vue'
+import { useDialogsStore } from '~/store/dialogs'
+
+const dialogsStore = useDialogsStore()
 
 const props = defineProps({
   categories: {
@@ -78,5 +88,14 @@ const selectedCategory = computed(() =>
 const selectCategory = (selectedValue) => {
   selectedCategoryId.value = selectedValue === selectedCategoryId.value ? '' : selectedValue
   open.value = false
+}
+
+const createCategory = () => {
+  dialogsStore.open('content', {
+    title: 'Create category',
+    description: 'Create a new category for your notes.',
+    component: markRaw(CategoryForm),
+    componentProps: {}
+  })
 }
 </script>

@@ -8,30 +8,18 @@
       <CardContent>
         <form @submit="signIn">
           <FieldGroup>
-            <VeeField v-slot="{ field, errors }" name="email">
-              <Field :data-invalid="!!errors.length">
-                <FieldLabel>Email</FieldLabel>
-                <Input
-                  v-bind="field"
-                  type="email"
-                  placeholder="Enter your email"
-                  :aria-invalid="!!errors.length"
-                />
-                <FieldError v-if="errors.length" :errors="errors" />
-              </Field>
-            </VeeField>
-            <VeeField v-slot="{ field, errors }" name="password">
-              <Field :data-invalid="!!errors.length">
-                <FieldLabel>Password</FieldLabel>
-                <Input
-                  v-bind="field"
-                  type="password"
-                  placeholder="Enter your password"
-                  :aria-invalid="!!errors.length"
-                />
-                <FieldError v-if="errors.length" :errors="errors" />
-              </Field>
-            </VeeField>
+            <base-form-field
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="Enter your email"
+            />
+            <base-form-field
+              name="password"
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+            />
           </FieldGroup>
           <div class="mt-5 flex justify-between">
             <Button class="cursor-pointer" :disabled="loading" type="submit">Sign In</Button>
@@ -61,11 +49,11 @@ import {
   CardHeader,
   CardTitle
 } from '~/components/ui/card/index.js'
-import { Field, FieldError, FieldGroup, FieldLabel } from '~/components/ui/field/index.js'
-import { Input } from '~/components/ui/input/index.js'
+import { FieldGroup } from '~/components/ui/field/index.js'
 import { toTypedSchema } from '@vee-validate/zod'
-import { useForm, Field as VeeField } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import { z } from 'zod'
+import BaseFormField from '~/components/base-form-field.vue'
 
 definePageMeta({
   layout: 'auth',

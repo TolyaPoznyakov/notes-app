@@ -3,11 +3,11 @@
     <CardHeader class="flex items-center">
       <CardTitle>{{ note.title }}</CardTitle>
       <CardAction class="ml-auto flex gap-2">
-        <Button variant="ghost" class="cursor-pointer" @click="editNote">
-          <PencilLine :size="18"/>
+        <Button variant="ghost" class="cursor-pointer hover:scale-103" @click="editNote">
+          <PencilLine :size="18" />
         </Button>
-        <Button variant="ghost" class="cursor-pointer" @click="deleteNote">
-          <Trash2 :size="18" stroke="black"/>
+        <Button variant="ghost" class="cursor-pointer hover:scale-103" @click="deleteNote">
+          <Trash2 :size="18" stroke="black" />
         </Button>
       </CardAction>
     </CardHeader>

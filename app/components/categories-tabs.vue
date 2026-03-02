@@ -9,27 +9,18 @@
         class="group"
       >
         {{ category.name }}
-        <confirm-delete-dialog
-          entity="category"
-          class="flex items-center"
-          @confirm="deleteCategory(category._id)"
+        <Button
+          variant="ghost"
+          class="w-0 h-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          @click="deleteCategory(category._id)"
         >
-          <Button
-            variant="ghost"
-            class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-          >
-            <X />
-          </Button>
-        </confirm-delete-dialog>
+          <X />
+        </Button>
       </TabsTrigger>
     </TabsList>
     <TabsContent value="all">
       <div class="flex flex-wrap">
-        <note-card
-          v-for="note in notes"
-          :key="note._id"
-          :note="note"
-        />
+        <note-card v-for="note in notes" :key="note._id" :note="note" />
       </div>
     </TabsContent>
     <TabsContent v-for="category in categories" :key="category._id" :value="category._id">
@@ -40,11 +31,7 @@
       </template>
       <template v-else>
         <div class="flex flex-wrap">
-          <note-card
-            v-for="note in notes"
-            :key="note._id"
-            :note="note"
-          />
+          <note-card v-for="note in notes" :key="note._id" :note="note" />
         </div>
       </template>
     </TabsContent>
@@ -57,8 +44,10 @@ import { X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useNotesStore } from '~/store/notes'
 import { useCategoriesStore } from '~/store/categories.js'
+import { useDialogsStore } from '~/store/dialogs'
 import { storeToRefs } from 'pinia'
 
+const dialogsStore = useDialogsStore()
 const notesStore = useNotesStore()
 const categoriesStore = useCategoriesStore()
 
@@ -86,8 +75,14 @@ const fetchNotes = async (categoryId) => {
   loading.value = false
 }
 
-const deleteCategory = async (categoryId) => {
-  await categoriesStore.delete(categoryId)
-  toast.success('Category has been deleted with its notes')
+const deleteCategory = (categoryId) => {
+  dialogsStore.open('confirm', {
+    title: 'Are you sure you want to delete this category?',
+    description: 'This action is irreversible, be careful.',
+    onSubmit: async () => {
+      await categoriesStore.delete(categoryId)
+      toast.success('Category has been deleted')
+    }
+  })
 }
 </script>
