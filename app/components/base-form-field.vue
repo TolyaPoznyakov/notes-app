@@ -28,8 +28,12 @@ const props = defineProps({
   as: { type: String, default: 'input' }
 })
 
+const componentMap = {
+  input: Input,
+  textarea: Textarea
+}
+
 const componentType = computed(() => {
-  if (props.as === 'textarea') return Textarea
-  return Input
+  return componentMap[props.as] || Input
 })
 </script>
