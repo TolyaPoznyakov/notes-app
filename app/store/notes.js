@@ -39,16 +39,5 @@ export const useNotesStore = defineStore('notes', {
       })
       this.notes = this.notes.filter((note) => note._id !== id)
     }
-    // async complete(id) {
-    //   const res = await useApiRequest(routes.notes.concrete(id), {
-    //     method: 'PUT',
-    //     body: {
-    //       completed: true
-    //     }
-    //   })
-    //   const updatedNote = res.data.value
-    //   this.notes = this.notes.map((note) => (note._id === id ? updatedNote : note))
-    //   return res
-    // }
   }
 })
