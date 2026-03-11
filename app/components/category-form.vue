@@ -1,6 +1,6 @@
 <template>
   <form class="grid gap-4" @submit.prevent="submit">
-    <base-form-field name="name" label="Name *" />
+    <base-form-field name="name" label="Name*" />
     <base-form-field name="description" label="Description" />
     <base-form-field name="color" label="Color" />
     <Button type="submit" class="w-30 cursor-pointer hover:scale-103" variant="outline"

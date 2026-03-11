@@ -1,5 +1,8 @@
 <template>
-  <Card class="w-xs m-2 pt-1 transition-all" :class="{ 'opacity-60': note.completed }">
+  <Card
+    class="w-xs m-2 pt-1 transition-all"
+    :class="[{ 'opacity-60': note.completed }, deadlineClass]"
+  >
     <CardHeader class="flex items-center pl-3">
       <Checkbox class="w-5 h-5" :model-value="note.completed" @update:model-value="completeNote" />
       <CardTitle>
@@ -21,6 +24,13 @@
       <p class="max-w-xs break-words" :class="{ 'line-through': note.completed }">
         {{ note.text }}
       </p>
+      <p
+        v-if="note.deadlineAt"
+        class="ml-auto pt-4 w-fit break-words text-xs font-medium"
+        :class="deadlineTextClass"
+      >
+        Deadline: {{ formattedDeadlineDate }}
+      </p>
     </CardContent>
   </Card>
 </template>
@@ -41,6 +51,18 @@ const props = defineProps({
     type: Object,
     required: true
   }
+})
+
+const formattedDeadlineDate = computed(() => {
+  if (!props.note.deadlineAt) return ''
+  const jsDate = new Date(props.note.deadlineAt)
+  return new Intl.DateTimeFormat('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(jsDate)
 })
 
 const editNote = () => {
@@ -68,4 +90,23 @@ const deleteNote = () => {
 const completeNote = async () => {
   await notesStore.update(props.note._id, { completed: !props.note.completed })
 }
+
+const deadlineClass = computed(() => {
+  if (!props.note.deadlineAt || props.note.completed) return ''
+
+  const now = new Date()
+  const deadline = new Date(props.note.deadlineAt)
+  const diffMs = deadline - now
+  const diffHours = diffMs / (1000 * 60 * 60)
+
+  if (diffHours < 0) return 'border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.45)]'
+  if (diffHours < 24) return 'border border-yellow-400/10 shadow-[0_0_20px_rgba(250,204,21,0.35)]'
+  return ''
+})
+
+const deadlineTextClass = computed(() => {
+  if (props.note.completed) return ''
+  if (!props.note.deadlineAt) return ''
+  return new Date(props.note.deadlineAt) < new Date() ? 'text-red-500' : ''
+})
 </script>
